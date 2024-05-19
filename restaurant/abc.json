@@ -1,0 +1,75 @@
+[
+    {
+        "id": 1,
+        "meals": [
+            {
+                "id": 1,
+                "required_items": {
+                    "id": 1,
+                    "item": [
+                        {
+                            "name": "Rice",
+                            "is_available": true
+                        }
+                    ],
+                    "description": "Sundries"
+                },
+                "optional_items": [
+                    {
+                        "name": "Raita",
+                        "is_available": true
+                    }
+                ],
+                "name": "Balochi Chicken",
+                "description": "Malai chicken indulged in a rich, hearty, green curry of spinach, mint, spring onions & coriander",
+                "price": "16.00",
+                "spiciness_level": null,
+                "category": 1
+            }
+        ],
+        "name": "Mains",
+        "description": "All main courses, except biryani, served with your choice of pilau rice or plain naan"
+    },
+    {
+        "id": 2,
+        "items": [
+            {
+                "id": 1,
+                "name": "Plain naan",
+                "description": "",
+                "price": "2.00",
+                "spiciness_level": 0,
+                "is_available": true,
+                "category": 2
+            },
+            {
+                "id": 2,
+                "name": "Rice",
+                "description": "",
+                "price": "3.00",
+                "spiciness_level": null,
+                "is_available": true,
+                "category": 2
+            }
+        ],
+        "name": "Sundries",
+        "description": ""
+    },
+    {
+        "id": 3,
+        "meals": [],
+        "items": [
+            {
+                "id": 3,
+                "name": "Raita",
+                "description": "",
+                "price": "2.00",
+                "spiciness_level": null,
+                "is_available": true,
+                "category": 3
+            }
+        ],
+        "name": "Dips",
+        "description": ""
+    }
+]

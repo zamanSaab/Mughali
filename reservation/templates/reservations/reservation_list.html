@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reservation List</title>
+    <style>
+        /* Add your CSS here to style the list view similar to Django Admin */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        select {
+            width: 100%;
+            padding: 5px;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        var updateStatusUrl = "{{ update_status_url }}";
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function updateStatus(reservationId, newStatus) {
+            $.ajax({
+                url: updateStatusUrl,
+                method: 'POST',
+                data: {
+                    'reservation_id': reservationId,
+                    'status': newStatus,
+                    'csrfmiddlewaretoken': getCookie('csrftoken')
+                },
+                success: function(response) {
+                    alert('Status updated successfully');
+                },
+                error: function(xhr, status, error) {
+                    alert('Error updating status');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            $('select.status').change(function() {
+                var reservationId = $(this).data('reservation-id');
+                var newStatus = $(this).val();
+                updateStatus(reservationId, newStatus);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Reservations</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Number of Persons</th>
+                <th>Date</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Note</th>
+                <th>Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr style="{% if reservation.status == 'confirmed' %}background-color: lightgreen;{% elif reservation.status == 'pending' %}background-color: yellow;{% elif reservation.status == 'cancelled' %}background-color: lightcoral;{% endif %}">
+                <td>{{ reservation.id }}</td>
+                <td>{{ reservation.user.username }}</td>
+                <td>{{ reservation.no_of_person }}</td>
+                <td>{{ reservation.date }}</td>
+                <td>{{ reservation.start_time }}</td>
+                <td>{{ reservation.end_time }}</td>
+                <td>{{ reservation.note }}</td>
+                <td>{{ reservation.name }}</td>
+                <td>
+                    <select class="status" data-reservation-id="{{ reservation.id }}">
+                        {% for value, display in status_choices %}
+                        <option value="{{ value }}" {% if reservation.status == value %}selected{% endif %}>
+                            {{ display }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
