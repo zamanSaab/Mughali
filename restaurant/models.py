@@ -79,10 +79,13 @@ class Order(models.Model):
     city = models.CharField(max_length=111)
     state = models.CharField(null=True, blank=True, max_length=111)
     zip_code = models.CharField(max_length=111)
-    state = models.CharField(null=True, blank=True,max_length=111)
     phone = models.CharField(max_length=111, default="")
     timestamp = models.DateTimeField(default=timezone.now)
+    # delivery_time = models.DateTimeField(default=timezone.now)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    transaction_id = models.CharField(max_length=128)
+    transaction_code = models.CharField(max_length=128, null=True, default=None)
     # order_date_time = models.DateTimeField()
 
     def __str__(self):

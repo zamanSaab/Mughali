@@ -5,15 +5,18 @@ from .models import Reservation, ReservationStatus
 from .serializers import ReservationSerializer
 from rest_framework import permissions, status, mixins
 from rest_framework.decorators import action
-from rest_framework.authentication import SessionAuthentication
+# from rest_framework.authentication import SessionAuthentication
 from .utils import get_max_seats_count, get_reserved_seats
 
 from rest_framework.viewsets import GenericViewSet
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.db.models import Q
+from django.utils import timezone
 class ReservationViewSet(
     mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin, GenericViewSet
 ):
-    authentication_classes = (SessionAuthentication, )
+    authentication_classes = (JWTAuthentication, )
     serializer_class = ReservationSerializer
 
     def get_permissions(self):
@@ -23,14 +26,34 @@ class ReservationViewSet(
         return super().get_permissions()
 
     def get_queryset(self):
-        return Reservation.objects.filter(
-        status__in=[
-            ReservationStatus.PENDING, ReservationStatus.CONFIRMED, ReservationStatus.IN_PROGRESS
-        ]
-    )
+        user = self.request.user
+        # import pdb; pdb.set_trace()
+        now = timezone.now()
+        queryset = Reservation.objects.filter(
+            Q(date__gt=now.date()) | (Q(date=now.date()) & Q(start_time__gt=now.time())),
+            status__in=[
+                ReservationStatus.PENDING,
+                ReservationStatus.CONFIRMED,
+                ReservationStatus.IN_PROGRESS
+            ]
+        )
+        if user.is_staff and user.is_superuser:
+            return queryset
+
+        return queryset.filter(user=user).order_by('date', 'start_time')
+
+
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.get_queryset()[:5]
+    #     serializer = self.get_serializer(page, many=True)
+    #     return serializer.data
+
+        # serializer = self.get_serializer(queryset, many=True)
+        # return Response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='available-seats')
     def available_seats(self, request):
+        # import pdb; pdb.set_trace()
         date = request.query_params.get('date')
         start_time = request.query_params.get('start_time')
         end_time = request.query_params.get('end_time')

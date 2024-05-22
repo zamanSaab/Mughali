@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'restaurant_info',
     'reservation',
     'debug_toolbar',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [

@@ -21,10 +21,10 @@ class GenerateMenuAPIView(ListAPIView):
 
 
 from rest_framework import permissions, status
-from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 class OrderAPIView(CreateAPIView):
     permission_classes = (permissions.IsAuthenticated, )
-    authentication_classes = (SessionAuthentication, )
+    authentication_classes = (JWTAuthentication, )
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 

@@ -95,16 +95,31 @@ class OrderMealSerializer(serializers.ModelSerializer):
         return order_meal
 
 
+from restaurant_info.models import RestaurantConfiguration
 class OrderSerializer(serializers.ModelSerializer):
     order_type = serializers.ChoiceField(choices=OrderTypes.choices, required=True)
-    order_status = serializers.ChoiceField(choices=OrderStatus.choices, required=True)
-    # order_date_time = serializers.DateTimeField(default=timezone.now())
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    order_items = OrderMealSerializer(many=True)
+    min_delivery_time = serializers.SerializerMethodField()
+    order_items = OrderMealSerializer(many=True, required=True)
     class Meta:
         model = Order
         fields = '__all__'
+
+
+    def validate_order_items(self, value):
+        if value is None or len(value) == 0:
+            raise serializers.ValidationError("You cant place an empty order.")
+        return value
     
+    def get_min_delivery_time(self, instance):
+        min_delivery_time = 45
+        delivery_time_in_min =  RestaurantConfiguration.objects.filter(
+            title='DeliveryConfig', key='delivery_time_in_min'
+        ).first()
+        if delivery_time_in_min:
+            return delivery_time_in_min.value or min_delivery_time
+        return min_delivery_time
+
     @transaction.atomic
     def create(self, validated_data):
         # import pdb; pdb.set_trace()
@@ -159,4 +174,16 @@ class OrderSerializer(serializers.ModelSerializer):
     "order_status": 1,
     "menu_items": [{"id": 1, "optional_items": [2,3]}],
     "address": "ABC"
+}
+
+{
+    "order_type": 1,
+    "order_items": [],
+    "address": "ABC Lahore",
+    "city": "Lahore",
+    "zip_code": "53800",
+    "phone": "03404242145",
+    "total_amount": 500,
+    "transaction_id": "A5478390F258",
+    "transaction_code": "code-A5478390F258"
 }

@@ -21,15 +21,16 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from rest_framework.authtoken import views
 
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),
+        path('api-token-auth/', views.obtain_auth_token),
         path('api/mughali/', include('restaurant.urls')),
         path('api/mughali/restaurant/', include('restaurant_info.urls')),
         path('api/mughali/reservation/', include('reservation.urls')),
-        path('', include('admin_dashboard.urls')),
         path('admin/', admin.site.urls),
         path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
         path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
