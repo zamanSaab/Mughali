@@ -32,6 +32,7 @@ if settings.DEBUG:
         path('api/mughali/restaurant/', include('restaurant_info.urls')),
         path('api/mughali/reservation/', include('reservation.urls')),
         path('admin/', admin.site.urls),
+        path('payments/', include('payments.urls')),
         path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
         path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
         # other URL patterns

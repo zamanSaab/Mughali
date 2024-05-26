@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 class SubItemSerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(source='menu_item.price', max_digits=10, decimal_places=2)
+
     class Meta:
         model = Item
         fields = ('id', 'name', 'price')
@@ -74,36 +75,67 @@ from datetime import datetime
 from django.utils import timezone
 from django.db import transaction
 class OrderMealSerializer(serializers.ModelSerializer):
+    quantity = serializers.IntegerField(default=1)
     menu_item = serializers.PrimaryKeyRelatedField(queryset=MenuItem.objects.all())
-    menu_item_name = serializers.CharField(read_only=True, source='menu_item.item.name')
+    # menu_item_name = serializers.CharField(read_only=True, source='menu_item.item.name')
+    # menu_item_image = serializers.CharField(read_only=True, source='menu_item.image')
+    # menu_item_description = serializers.CharField(read_only=True, source='menu_item.description')
+    # menu_item_name = serializers.CharField(read_only=True, source='menu_item.item.name')
     additional_items = serializers.PrimaryKeyRelatedField(queryset=Item.objects.all(), many=True)
+    required_items = serializers.PrimaryKeyRelatedField(queryset=Item.objects.all(), many=True)
+    # amount = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderMeal
-        fields = ('note', 'serving', 'menu_item', 'additional_items', 'menu_item_name')
-    # def to_representation(self, instance):
-    #     data = super().to_representation(instance)
-    #     # data['menu_item'] = SimpleItemSerializer(instance.menu_item.item).data
-    #     # data['additional_items'] = SimpleItemSerializer(instance.additional_items, many=True).data
-    #     return data
+        fields = (
+            'note', 'serving', 'menu_item', 'additional_items', 'required_items', 'amount', 'quantity'
+            # 'menu_item_name', 'menu_item_image', 'amount', 'menu_item_description'
+        )
+        extra_kwargs = {
+            'amount': {'required': False},
+        }
+
+    # def get_amount(self, instance):
+    #     # Note: This method assumes that `obj` is the validated data dict, not a model instance
+    #     menu_item_price = instance.menu_item.price
+    #     required_items_prices = sum(item.menu_item.price for item in instance.required_items.all())
+    #     return menu_item_price + required_items_prices
 
     def create(self, validated_data):
-        # print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+        # import pdb; pdb.set_trace()
         additional_items_data = validated_data.pop('additional_items')
+        required_items_data = validated_data.pop('required_items')
+        menu_item_price = validated_data['menu_item'].price * int(validated_data.get('serving', 1))
+        # import pdb; pdb.set_trace()
+        required_items_prices = sum(
+            item.menu_item.price for item in required_items_data
+        )
+        validated_data['amount'] = menu_item_price + required_items_prices
         order_meal = OrderMeal.objects.create(**validated_data)
         order_meal.additional_items.set(additional_items_data)
+        order_meal.required_items.set(required_items_data)
         return order_meal
 
 
+
 from restaurant_info.models import RestaurantConfiguration
+from django.db.models import Sum
+from decimal import Decimal
+
 class OrderSerializer(serializers.ModelSerializer):
     order_type = serializers.ChoiceField(choices=OrderTypes.choices, required=True)
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    min_delivery_time = serializers.SerializerMethodField()
+    # min_delivery_time = serializers.SerializerMethodField()
     order_items = OrderMealSerializer(many=True, required=True)
+    # total_amount = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
         fields = '__all__'
+        extra_kwargs = {
+            'stripe_session_id': {'required': False},
+            'total_amount': {'required': False},
+        }
 
 
     def validate_order_items(self, value):
@@ -119,17 +151,23 @@ class OrderSerializer(serializers.ModelSerializer):
         if delivery_time_in_min:
             return delivery_time_in_min.value or min_delivery_time
         return min_delivery_time
+    
+
+    # def get_total_amount(self, instance):
+    #     # Calculate total amount for the order
+    #     return sum(item.get_amount() for item in instance.order_items.all())
 
     @transaction.atomic
     def create(self, validated_data):
-        # import pdb; pdb.set_trace()
         order_items_data = validated_data.pop('order_items')
-        order = Order.objects.create(**validated_data)
-        
-        order_meals = [
-            OrderMealSerializer().create({**order_item_data, 'order': order})
-            for order_item_data in order_items_data
-        ]
+        total_amount = Decimal('0.0')
+        order = Order.objects.create(**validated_data, total_amount=total_amount)
+        # import pdb; pdb.set_trace()
+        for order_item_data in order_items_data:
+            ordered_meal = OrderMealSerializer().create({**order_item_data, 'order': order})
+            total_amount += ordered_meal.amount
+        order.total_amount = total_amount
+        order.save()
         
         return order
     # def create(self, validated_data):

@@ -25,8 +25,6 @@ SECRET_KEY = 'django-insecure-7y%fp@$1lf3k$5tv2asx$2#b))^coe!z1!=r7w**z6==@oghym
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -43,6 +41,8 @@ INSTALLED_APPS = [
     'restaurant_info',
     'reservation',
     'debug_toolbar',
+    'corsheaders',
+    'payments',
     'rest_framework.authtoken'
 ]
 
@@ -55,7 +55,43 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'authorization',
+    'accept',
+    'origin',
+    'x-requested-with',
+]
+
+
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'zaman.pythonanywhere.com',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://zaman.pythonanywhere.com",
+    "https://zaman.pythonanywhere.com",
+]
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -93,7 +129,7 @@ ROOT_URLCONF = 'mughali.urls'
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, '')
 
-# ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/assets') 
+# ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/assets')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
@@ -169,3 +205,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+STRIPE_SECRET_KEY = 'sk_test_51PKRslIwpwstqGvyu0q9HnPkLF1GGgfHOidetyuEGps7qSQqEnUgPqyJfUWq3MUvOFeSTHQV0hbSHjLLTsbCLxbP00RtUEq3rU'
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51PKRslIwpwstqGvy2gq8keV21q6zeSpazsv8PauAKSwT4CodQjR0EAXNm6J72qrYaQIDcFNJLReAHcdi5cKueKEA00LgEC6wiz'
+
+SITE_URL = 'http://localhost:3000/'

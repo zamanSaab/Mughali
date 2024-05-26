@@ -66,6 +66,7 @@ class OrderStatus(models.IntegerChoices):
     IN_PROGRESS = 1, 'In progress'
     OUT_FOR_DELIVERY = 2, 'Out for delivery'
     DELIVERED = 3, 'Delivered'
+    PAID = 4, 'Paid'
 
 
 from django.contrib.auth.models import User
@@ -84,7 +85,7 @@ class Order(models.Model):
     # delivery_time = models.DateTimeField(default=timezone.now)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     
-    transaction_id = models.CharField(max_length=128)
+    stripe_session_id = models.CharField(max_length=512)
     transaction_code = models.CharField(max_length=128, null=True, default=None)
     # order_date_time = models.DateTimeField()
 
@@ -96,7 +97,11 @@ class OrderMeal(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
     serving = models.SmallIntegerField(null=True, blank=True, choices=MealServing.choices)
     menu_item = models.ForeignKey(MenuItem, on_delete=models.DO_NOTHING, blank=False)
-    additional_items = models.ManyToManyField(Item, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveSmallIntegerField(default=1)
+
+    required_items = models.ManyToManyField(Item, blank=True, related_name='required_in')
+    additional_items = models.ManyToManyField(Item, blank=True, related_name='optional_in')
     
     def __str__(self):
         return self.menu_item.item.name

@@ -1,25 +1,32 @@
-from django.shortcuts import render
-from rest_framework.generics import ListAPIView, CreateAPIView
-from rest_framework.views import APIView
-from .models import Category, Order
-from .serializers import CategorySerializer, OrderSerializer
+# payments/views.py
+import stripe
+import json
+from django.conf import settings
+from django.http import JsonResponse
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
-
-
-# Create your views here.
-class GenerateMenuAPIView(ListAPIView):
-    authentication_classes = []
-    permission_classes = []
-    pagination_class = None
-    # queryset = SummerSchoolLevel.objects.all()
-    def get_queryset(self):
+@method_decorator(csrf_exempt, name='dispatch')
+class CreatePaymentIntentView(View):
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.body)
         # import pdb; pdb.set_trace()
-        return Category.objects.all().prefetch_related('items')
-    serializer_class = CategorySerializer
+        try:
+            intent = stripe.PaymentIntent.create(
+                amount=int(data['amount']) * 100,
+                currency='eur',
+            )
+            return JsonResponse({
+                'clientSecret': intent['client_secret']
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=403)
 
 
-
+# views.py
 import stripe
 from django.conf import settings
 from django.http import JsonResponse
@@ -69,50 +76,9 @@ class CreateCheckoutSessionView(APIView):
                     success_url=settings.SITE_URL + '/?success=true&session_id={CHECKOUT_SESSION_ID}',
                     cancel_url=settings.SITE_URL + '/?canceled=true',
                 )
-                order.stripe_session_id = checkout_session.id
-                order.save()
                 return redirect(checkout_session.url)
             except:
                 return Response(
                     {'error': 'Something went wrong when creating stripe checkout session'},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from restaurant_info.models import RestaurantConfiguration
-from .models import Order, OrderStatus
-
-class UpdateOrderStatusView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = (JWTAuthentication, )
-
-    def _get_min_delivery_time(self):
-        min_delivery_time = 45
-        delivery_time_in_min =  RestaurantConfiguration.objects.filter(
-            title='DeliveryConfig', key='delivery_time_in_min'
-        ).first()
-        if delivery_time_in_min:
-            return delivery_time_in_min.value or min_delivery_time
-        return min_delivery_time
-
-    def post(self, request):
-        session_key = request.data.get('session_key')
-        if not session_key:
-            return Response({'error': 'session_key is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            order = Order.objects.get(stripe_session_id=session_key)
-        except Order.DoesNotExist:
-            return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        if order.order_status == OrderStatus.PENDING:
-            order.order_status = OrderStatus.PAID
-            order.save()
-            return Response({
-                'message': f'Your order will be deliver in next {self._get_min_delivery_time()} minutes'
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'Order is in preparation'}, status=status.HTTP_400_BAD_REQUEST)
