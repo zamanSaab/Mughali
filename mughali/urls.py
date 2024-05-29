@@ -22,6 +22,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from rest_framework.authtoken import views
+from django.conf.urls.static import static
 
 if settings.DEBUG:
     import debug_toolbar
@@ -32,8 +33,11 @@ if settings.DEBUG:
         path('api/mughali/restaurant/', include('restaurant_info.urls')),
         path('api/mughali/reservation/', include('reservation.urls')),
         path('admin/', admin.site.urls),
+        path('', include('admin_dashboard.urls')),
         path('payments/', include('payments.urls')),
         path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
         path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
         # other URL patterns
     ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

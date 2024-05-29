@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 class SubItemSerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(source='menu_item.price', max_digits=10, decimal_places=2)
-
+    id = serializers.IntegerField(source='menu_item.id')
     class Meta:
         model = Item
         fields = ('id', 'name', 'price')
@@ -26,7 +26,7 @@ class SimpleItemSerializer(serializers.ModelSerializer):
 
 class MenuItemSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='item.name')
-    # serving = serializers.ChoiceField(choices=MealServing.choices, read_only=True)
+    # # serving = serializers.ChoiceField(choices=MealServing.choices, read_only=True)
     required_items = RequiredItemSerializer(many=True)
     optional_items = SubItemSerializer(many=True)
     class Meta:
@@ -108,7 +108,7 @@ class OrderMealSerializer(serializers.ModelSerializer):
         menu_item_price = validated_data['menu_item'].price * int(validated_data.get('serving', 1))
         # import pdb; pdb.set_trace()
         required_items_prices = sum(
-            item.menu_item.price for item in required_items_data
+            item.menu_item.price for item in required_items_data if hasattr(item, 'menu_item')
         )
         validated_data['amount'] = menu_item_price + required_items_prices
         order_meal = OrderMeal.objects.create(**validated_data)

@@ -93,11 +93,11 @@ class Order(models.Model):
         return f"{OrderStatus.choices[self.order_status][1]} - {self.user.username}-{self.total_amount}€"
 
 class OrderMeal(models.Model):
-    note = models.JSONField(null=True, blank=True)
+    note = models.TextField(null=True, blank=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
     serving = models.SmallIntegerField(null=True, blank=True, choices=MealServing.choices)
     menu_item = models.ForeignKey(MenuItem, on_delete=models.DO_NOTHING, blank=False)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     quantity = models.PositiveSmallIntegerField(default=1)
 
     required_items = models.ManyToManyField(Item, blank=True, related_name='required_in')

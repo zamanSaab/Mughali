@@ -1,0 +1,46 @@
+{% comment %} <!DOCTYPE html>
+<html>
+
+<head>
+    <title>Your Order is Paid</title>
+</head>
+
+<body>
+    <div style="text-align: center;">
+        <img src="{{ logo_url }}" alt="Logo" style="width: 200px; height: auto;">
+    </div>
+    <p>Dear {{ username }},</p>
+    <p>{{ message }}</p>
+    <p>Thank you for using our site!</p>
+</body>
+
+</html> {% endcomment %}
+
+{% extends "layouts/base.html" %}
+
+{% block title %} 
+<head>
+    <title>{{ title }}</title>
+</head>
+ {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+  <div class="content">
+    <div class="row">
+      <div class="col-md-12">
+        <img src="/static/img/mughali-round.png" alt="Logo" style="display: block; margin-left: auto; margin-right: auto; width: 200px; height: 200px;">
+        <p>Dear {{ username }},</p>
+        <p>{{ message }}</p>
+        <p>Thank you for using our site!</p>
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}

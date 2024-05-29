@@ -1,0 +1,84 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Reservations {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+    <div class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card ">
+                    <div class="card-header">
+                        <h4 class="card-title"> Bookings</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table tablesorter " id="">
+                                <thead class=" text-primary">
+                                <tr>
+                                    <th>
+                                        Name
+                                    </th>
+                                    <th>
+                                        No of Person
+                                    </th>
+                                    <th>
+                                        Date
+                                    </th>
+                                    <th>
+                                        Start Time
+                                    </th>
+                                    <th>
+                                        End Time
+                                    </th>
+                                    <th>
+                                        Notes
+                                    </th>
+                                    <th class="text-center">
+                                        Status
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reservation in reservations %}
+                                        <tr>
+                                            
+                                            <td>
+                                                <a href="{% url 'reservation_detail' reservation.id %}">
+                                                    {{ reservation.name }}
+                                                </a>
+                                            </td>
+                                            <td>{{ reservation.no_of_person }}</td>
+                                            <td>{{ reservation.date }}</td>
+                                            <td>{{ reservation.start_time }}</td>
+                                            <td>{{ reservation.end_time }}</td>
+                                            <td>{{ reservation.note|slice:":25" }}...</td>
+                                        
+                                            <td class="text-center">
+                                                {{ reservation.get_status_display }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+    $(document).ready(function () {
+        // Initialize dashboard page charts
+        demo.initDashboardPageCharts();
+    });
+</script>
+{% endblock javascripts %}

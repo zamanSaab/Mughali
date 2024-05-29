@@ -32,6 +32,6 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(OrderMeal)
 class OrderMealAdmin(admin.ModelAdmin):
     list_display = ('order', 'menu_item', 'serving', 'note')
-    readonly_fields = ('order', 'menu_item', 'serving', 'note', 'additional_items')
+    # readonly_fields = ('order', 'menu_item', 'serving', 'note', 'additional_items')
     search_fields = ('menu_item__item__name', 'order__user__username')
     list_filter = ('serving', 'menu_item')

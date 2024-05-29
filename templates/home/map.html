@@ -1,0 +1,39 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Maps {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+  <div class="content">
+    <div class="row">
+      <div class="col-md-12">
+        <img src="/static/img/mughali-round.png" alt="Logo" style="display: block; margin-left: auto; margin-right: auto; width: 200px; height: 200px;">
+
+        {% comment %} <div class="card card-plain">
+          <div class="card-header">
+            Mughali
+          </div>
+          <div class="card-body">
+            <div id="map" class="map"></div>
+          </div>
+        </div> {% endcomment %}
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+  {% comment %} <script>
+    $(document).ready(function() {
+      // Javascript method's body can be found in assets/js/demos.js
+      demo.initGoogleMaps();
+    });
+  </script> {% endcomment %}
+
+{% endblock javascripts %}

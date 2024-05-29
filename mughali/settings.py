@@ -25,6 +25,8 @@ SECRET_KEY = 'django-insecure-7y%fp@$1lf3k$5tv2asx$2#b))^coe!z1!=r7w**z6==@oghym
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+ALLOWED_HOSTS = ['zaman.pythonanywhere.com']
+
 
 # Application definition
 
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'corsheaders',
     'payments',
+    'admin_dashboard',
     'rest_framework.authtoken'
 ]
 
@@ -103,8 +106,8 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',
@@ -122,9 +125,18 @@ INTERNAL_IPS = [
     '::1',
 ]
 
+
+
 import os
 ROOT_URLCONF = 'mughali.urls'
 # settings.py
+
+
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Media files settings
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, '')
@@ -199,7 +211,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -209,5 +221,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STRIPE_SECRET_KEY = 'sk_test_51PKRslIwpwstqGvyu0q9HnPkLF1GGgfHOidetyuEGps7qSQqEnUgPqyJfUWq3MUvOFeSTHQV0hbSHjLLTsbCLxbP00RtUEq3rU'
 STRIPE_PUBLISHABLE_KEY = 'pk_test_51PKRslIwpwstqGvy2gq8keV21q6zeSpazsv8PauAKSwT4CodQjR0EAXNm6J72qrYaQIDcFNJLReAHcdi5cKueKEA00LgEC6wiz'
+STRIPE_ENDPOINT_SECRET = 'whsec_a553b8a8fafb36f1c217c53c9d143610f18f7770e00d756465b072423f74cc1d'
+STRIPE_WEBHOOK_SECRET = 'whsec_a553b8a8fafb36f1c217c53c9d143610f18f7770e00d756465b072423f74cc1d'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'zchaudhary09@gmail.com'
+EMAIL_HOST_PASSWORD = 'wgoufnlvcllehipx'
+
 
 SITE_URL = 'http://localhost:3000/'
+BACKEND_URL = 'http://127.0.0.1:8000/'

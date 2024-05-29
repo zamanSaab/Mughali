@@ -1,0 +1,226 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} User Profile {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+<style>
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+  }
+  .serving-notes {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .notes {
+    margin-right: auto;
+  }
+  .serving {
+    color: white !important;
+    align-self: flex-end;
+  }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="content">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body">
+            <h2>Food Order</h2>
+            <form method="post" >{% comment %}action="{% url 'your_view_name' %}"> {% endcomment %}
+              {% csrf_token %}
+              <div class="row">
+                  <div class="col-md-6 pr-md-1">
+                      {{ form.user.label_tag }}
+                      {{ form.user }}
+                  </div>
+                  <div class="col-md-6">
+                      {{ form.name.label_tag }}
+                      {{ form.name }}
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-md-6 pr-md-1">
+                      {{ form.order_type.label_tag }}
+                      {{ form.order_type }}
+                  </div>
+                  <div class="col-md-6">
+                      {{ form.order_status.label_tag }}
+                      {{ form.order_status }}
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-md-8">
+                      {{ form.address.label_tag }}
+                      {{ form.address }}
+                  </div>
+                  <div class="col-md-4">
+                      {{ form.zip_code.label_tag }}
+                      {{ form.zip_code }}
+                  </div>
+              </div>
+              <div class="row">
+              </div>
+              <div class="row">
+                  <div class="col-md-6 pr-md-1">
+                      {{ form.phone.label_tag }}
+                      {{ form.phone }}
+                  </div>
+                  <div class="col-md-6">
+                      {{ form.timestamp.label_tag }}
+                      {{ form.timestamp }}
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-md-12">
+                      {{ form.total_amount.label_tag }}
+                      <div class="input-group">
+                          <div class="input-group-prepend">
+                              <span class="input-group-text">€</span>
+                          </div>
+                          {{ form.total_amount }}
+                      </div>
+                      {% comment %} {{ form.total_amount }} {% endcomment %}
+                  </div>
+              </div>
+              <button type="submit" class="btn btn-primary">Update</button>
+          </form>
+        </div>
+      </div>
+  {% comment %} </div> {% endcomment %}
+{% comment %} note, serving, menu_item, additional_items {% endcomment %}
+  <!-- Cards for each order item -->
+ <!-- Cards for each order item -->
+  <div class="row">
+      {% for item in order_items %}
+      <div class="col-md-4">
+        <div class="card card-user">
+          <div class="card-body">
+            <p class="card-text">
+              <div class="author">
+                <div class="block block-one"></div>
+                <div class="block block-two"></div>
+                <div class="block block-three"></div>
+                <div class="block block-four"></div>
+                <a href="javascript:void(0)">
+                  <h4 class="title">{{ item.menu_item.item.name }}</h4>
+                </a>
+                <small class="">
+                  {{ item.menu_item.description }}
+                </small>
+              </div>
+            </p>
+            <div class="card-description">
+              <strong>Additional Items:</strong>
+              <ul>
+                {% for additional in item.additional_items.all %}
+                  <li>{{ additional.name }}</li>
+                {% endfor %}
+              </ul>
+              <strong>Required Items:</strong>
+              <ul>
+                {% for required in item.required_items.all %}
+                  <li>{{ required.name }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="serving-notes">
+              <div class="notes">
+                <strong>Notes:</strong> 
+                <br>
+                {{ item.note }}
+              </div>
+              <div class="serving">
+                <strong>Quantity:</strong>
+                {% if item.quantity %}
+                  {{ item.get_quantity_display }}
+                {% else %}
+                  1
+                {% endif %}
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+  </div>
+  {% comment %} <div class="row">
+      {% for item in order_items %}
+      <div class="col-md-4">
+        <div class="card card-user">
+          <div class="card-body">
+            <p class="card-text">
+              <div class="author">
+                <div class="block block-one"></div>
+                <div class="block block-two"></div>
+                <div class="block block-three"></div>
+                <div class="block block-four"></div>
+                <a href="javascript:void(0)">
+                  <h4 class="title"> {{ item.menu_item.item.name }}</h4>
+                  <h5 class="title"> {{ item.menu_item.item.description }}</h5>
+                </a> 
+                <p class="description">
+                  {{ item.description }}
+                </p>
+              </div>
+            </p>
+            <div class="card-description">
+              {{ item.details }}
+            </div>
+          </div>
+          <div class="card-footer">
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+  </div> {% endcomment %}
+  </div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}
+
+
+{% comment %} 
+
+  {% for item in order_items %}
+    <div class="col-md-4">
+      <div class="card card-user">
+        <div class="card-body">
+          <p class="card-text">
+            <div class="author">
+              <div class="block block-one"></div>
+              <div class="block block-two"></div>
+              <div class="block block-three"></div>
+              <div class="block block-four"></div>
+              <a href="javascript:void(0)">
+                <img class="avatar" src="{{ ASSETS_ROOT }}/img/emilyz.jpg" alt="...">
+                <h5 class="title">Mike Andrew</h5>
+              </a>  
+              <p class="description">
+                Ceo/Co-Founder
+              </p>
+            </div>
+          </p>
+          <div class="card-description">
+            Do not be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick Owens’ bed design but the back is...
+          </div>
+        </div>
+        <div class="card-footer">
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endfor %} {% endcomment %}

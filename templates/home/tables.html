@@ -1,0 +1,118 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Orders {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+
+{% block stylesheets %}
+<style>
+    .switch-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .switch-button {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin: 0 10px;
+        color: white;
+    }
+    .switch-button.active {
+        background-color: #5A9 !important;
+    }
+    .switch-button.inactive {
+        background-color: #999;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title"> Orders </h4>
+                        <!-- Switch for Takeaway and Delivery -->
+                        <div class="btn-group" role="group" aria-label="Order Type Switch">
+
+            {% comment %} <div class="switch-button inactive" id="takeaway-btn" onclick="filterOrders('takeaway')">Takeaway</div>
+            <div class="switch-button active" id="delivery-btn" onclick="filterOrders('delivery')">Delivery</div> {% endcomment %}
+                            <button type="button" class="btn btn-secondary active" id="delivery-btn" onclick="filterOrders('delivery')">Delivery</button>
+                            <button type="button" class="btn btn-secondary inactive" id="takeaway-btn" onclick="filterOrders('pick-up')">Takeaway</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table tablesorter " id="orders-table">
+                                <thead class=" text-primary">
+                                <tr>
+                                    <th>
+                                        Name
+                                    </th>
+                                    <th>
+                                        Phone Number
+                                    </th>
+                                    <th>
+                                        Order Status
+                                    </th>
+                                    <th>
+                                        Address
+                                    </th>
+                                    <th class="text-center">
+                                        Order Time
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                        <tr class="order-row" data-order-type="{{ order.get_order_type_display|lower }}">
+                                            <td>
+                                                <a href="{% url 'order_detail' order.id %}">
+                                                    {{ order.user.first_name }} {{ order.user.last_name }}
+                                                </a>
+                                            </td>
+                                            <td>{{ order.phone }}</td>
+                                            <td>{{ order.get_order_status_display }}</td>
+                                            <td>{{ order.address|slice:":25" }}...</td>
+                                            <td class="text-center">
+                                                {{ order.timestamp }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+    function filterOrders(type) {
+        var rows = document.querySelectorAll('.order-row');
+        rows.forEach(row => {
+            if (type === 'all' || row.getAttribute('data-order-type') === type) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        // Update button styles
+        document.getElementById('takeaway-btn').classList.toggle('active', type === 'pick-up');
+        document.getElementById('takeaway-btn').classList.toggle('inactive', type !== 'pick-up');
+        document.getElementById('delivery-btn').classList.toggle('active', type === 'delivery');
+        document.getElementById('delivery-btn').classList.toggle('inactive', type !== 'delivery');
+    }
+    
+    // Optional: Initialize with all orders displayed
+    filterOrders('all');
+</script>
+{% endblock javascripts %}

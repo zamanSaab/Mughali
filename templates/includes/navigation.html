@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mughali Restaurant</title>
+    <!-- Bootstrap CSS -->
+    {% comment %} <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> {% endcomment %}
+    <style>
+        .navbar-toggler-bar {
+            display: inline-block;
+            width: 22px;
+            height: 2px;
+            background: #333;
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-absolute navbar-transparent">
+        <div class="container-fluid">
+            <div class="navbar-wrapper">
+                <div class="navbar-toggle d-inline">
+                    <button type="button" class="navbar-toggler">
+                        <span class="navbar-toggler-bar bar1"></span>
+                        <span class="navbar-toggler-bar bar2"></span>
+                        <span class="navbar-toggler-bar bar3"></span>
+                    </button>
+                </div>
+                <a class="navbar-brand" href="javascript:void(0)">Mughali Restaurant</a>
+            </div>
+            <div class="collapse navbar-collapse" id="navigation">
+                <ul class="navbar-nav ml-auto">
+                    <li class="dropdown nav-item">
+                        <a href="javascript:void(0)" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                            <div class="notification d-none d-lg-block d-xl-block"></div>
+                            <i class="tim-icons icon-bell-55"></i>
+                            <p class="d-lg-none">
+                            </p>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right dropdown-navbar" id="notificationDropdown">
+                            <li class="nav-link"><a href="#" class="nav-item dropdown-item">No new notifications</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- End Navbar -->
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Sound for notifications -->
+    <audio id="notificationSound" src="/static/notification_sound.wav" preload="auto"></audio>
+    <script>
+        $(document).ready(function() {
+            function checkForNotifications() {
+                $.ajax({
+                    url: '/notifications/get-notifications/',
+                    method: 'GET',
+                    success: function(data) {
+                        let notifications = data;
+                        let notificationDropdown = $('#notificationDropdown');
+                        notificationDropdown.empty();
+
+                        if (notifications.length > 0) {
+                            notifications.forEach(function(notification) {
+                                let notificationItem = $(
+                                    `<li class="nav-link">
+                                        <a href="javascript:void(0)" class="nav-item dropdown-item" data-id="${notification.id}" data-url="${notification.redirect_url}">
+                                            ${notification.message}
+                                        </a>
+                                    </li>`
+                                );
+                                notificationItem.find('a').click(function() {
+                                    let notificationId = $(this).data('id');
+                                    let redirectUrl = $(this).data('url');
+                                    markAsRead(notificationId, redirectUrl);
+                                });
+                                notificationDropdown.append(notificationItem);
+                            });
+                            // Play sound
+                            $('#notificationSound')[0].play();
+                        } else {
+                            notificationDropdown.append('<li class="nav-link"><a href="#" class="nav-item dropdown-item">No new notifications</a></li>');
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error fetching notifications:', error);
+                    }
+                });
+            }
+
+            function markAsRead(notificationId, redirectUrl) {
+                $.ajax({
+                    url: `/notifications/mark-as-read/${notificationId}/`,
+                    method: 'POST',
+                    success: function() {
+                        window.location.href = redirectUrl;
+                    },
+                    error: function(error) {
+                        console.error('Error marking notification as read:', error);
+                    }
+                });
+            }
+
+            // Poll for new notifications every 30 seconds
+            setInterval(checkForNotifications, 30000);
+
+            // Initial check
+            checkForNotifications();
+        });
+    </script>
+</body>
+</html>

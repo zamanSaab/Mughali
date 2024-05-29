@@ -1,0 +1,123 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} User Profile {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<div class="content">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="title">Edit Reservation</h5>
+          </div>
+          <div class="card-body">
+            <h2>Reservation Form</h2>
+            {% comment %} <form method="post">
+              {{ form.as_table }}
+            </form> {% endcomment %}
+
+            <form method="post">
+            {% csrf_token %}
+            {% comment %} <div class="row">
+                <div class="col-md-12 pr-md-1">
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Booking Name</label>
+                    {{ form.name }}
+                  </div>
+                </div>
+
+              </div> {% endcomment %}
+              <div class="row">
+                <div class="col-md-6 pr-md-1">
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Booking Name</label>
+                    {{ form.name }}
+                    {% comment %} <input type="text" class="form-control" readonly placeholder="Company" value={{ form.name }}> {% endcomment %}
+                  </div>
+                </div>
+                <div class="col-md-6 pl-md-1">
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Email address</label>
+                    <input type="email" class="form-control" readonly placeholder="zaman@email.com" value={{ form.user.email.value }}>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4 pr-md-1">
+                  <div class="form-group">
+                    <label>Date</label>
+                    {{ form.date }}
+                    {% comment %} <input type="date" class="form-control" placeholder="Date" value="{{ form.date.value|date:'Y-m-d' }}""> {% endcomment %}
+                  </div>
+                </div>
+                <div class="col-md-4 pr-md-1">
+                  <div class="form-group">
+                    <label>Start Time</label>
+                    {{ form.start_time }}
+                    {% comment %} <input type="time" class="form-control" placeholder="Start Time" value="{{ form.start_time.value|time:'H:i' }}"> {% endcomment %}
+                  </div>
+                </div>
+                <div class="col-md-4 pr-md-1">
+                  <div class="form-group">
+                    <label>End Time</label>
+                    {{ form.end_time }}
+                    {% comment %} <input type="time" class="form-control" placeholder="End Time" value="{{ form.end_time.value|time:'H:i' }}"> {% endcomment %}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4 pr-md-1">
+                  <div class="form-group">
+                    <label>Phone No.</label>
+                    {{ form.phone }}
+                    {% comment %} <input type="tel" class="form-control" placeholder="Phone" value= {{ form.phone.value }}> {% endcomment %}
+                  </div>
+                </div>
+                <div class="col-md-4 pr-md-1">
+                  <div class="form-group">
+                    <label>No of Person</label>
+                    {{ form.no_of_person }}
+                    {% comment %} <input type="number" class="form-control" placeholder="No of Seats" value= {{ form.no_of_person.value|default_if_none:form.no_of_person.value }}> {% endcomment %}
+                  </div>
+                </div>
+
+                <div class="col-md-4 pr-md-1">
+                  <div class="form-group">
+                    <label>Status</label>
+                    {{ form.status }}
+                   </div>
+                  </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Note</label>
+                    {{ form.note }}
+                    {% comment %} <textarea rows="4" cols="80" class="form-control" placeholder="Here can be your description" value= {{ form.note.value }}>{{ form.note.value }}</textarea> {% endcomment %}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="card-footer">
+                <button type="submit" class="btn btn-fill btn-primary">Save</button>
+              </div>
+            </form>
+                {% comment %} <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit">Submit</button>
+                </form> {% endcomment %}
+            </div>
+         </div>
+      </div>
+
+              </div>
+              </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

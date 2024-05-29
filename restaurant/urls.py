@@ -2,7 +2,7 @@ from django.urls import path, include
 # from django.conf.urls import url
 # from rest_framework.routers import DefaultRouter
 
-from .views import GenerateMenuAPIView, CreateCheckoutSessionView, UpdateOrderStatusView
+from .views import GenerateMenuAPIView, CreateCheckoutSessionView, UpdateOrderStatusView, StripeWebhookView, stripe_webhook
 
 
 # router = DefaultRouter()
@@ -12,5 +12,6 @@ urlpatterns = [
     path('menu/', GenerateMenuAPIView.as_view(), name='restaurant-menu'),
     path('publish-order/', CreateCheckoutSessionView.as_view()),
     path('update-order-status/', UpdateOrderStatusView.as_view(), name='update_order_status'),
+    path('webhook/stripe/', stripe_webhook, name='stripe-webhook'),
     
 ]
