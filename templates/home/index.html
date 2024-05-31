@@ -3,20 +3,32 @@
 {% block title %} Reservations {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<style>
+    .search-input {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding: 5px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
     <div class="content">
         <div class="row">
             <div class="col-12">
-                <div class="card ">
+                <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title"> Bookings</h4>
+                        <h4 class="card-title">Bookings</h4>
+                        <!-- Search input field -->
+                        <input type="text" id="search-input" class="search-input" onkeyup="searchReservations()" placeholder="Search for reservations..">
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table tablesorter " id="">
-                                <thead class=" text-primary">
+                            <table class="table tablesorter" id="reservations-table">
+                                <thead class="text-primary">
                                 <tr>
                                     <th>
                                         Name
@@ -43,8 +55,7 @@
                                 </thead>
                                 <tbody>
                                     {% for reservation in reservations %}
-                                        <tr>
-                                            
+                                        <tr class="reservation-row">
                                             <td>
                                                 <a href="{% url 'reservation_detail' reservation.id %}">
                                                     {{ reservation.name }}
@@ -55,7 +66,6 @@
                                             <td>{{ reservation.start_time }}</td>
                                             <td>{{ reservation.end_time }}</td>
                                             <td>{{ reservation.note|slice:":25" }}...</td>
-                                        
                                             <td class="text-center">
                                                 {{ reservation.get_status_display }}
                                             </td>
@@ -68,17 +78,31 @@
                 </div>
             </div>
         </div>
-        
     </div>
-
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script>
-    $(document).ready(function () {
-        // Initialize dashboard page charts
-        demo.initDashboardPageCharts();
-    });
+    function searchReservations() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById('search-input');
+        filter = input.value.toLowerCase();
+        table = document.getElementById('reservations-table');
+        tr = table.getElementsByTagName('tr');
+        for (i = 1; i < tr.length; i++) { // Skip header row
+            tr[i].style.display = 'none';
+            td = tr[i].getElementsByTagName('td');
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = '';
+                        break; // Stop searching in this row if a match is found
+                    }
+                }
+            }
+        }
+    }
 </script>
 {% endblock javascripts %}

@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 class SubItemSerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(source='menu_item.price', max_digits=10, decimal_places=2)
-    id = serializers.IntegerField(source='menu_item.id')
+    # id = serializers.IntegerField(source='menu_item.id')
     class Meta:
         model = Item
         fields = ('id', 'name', 'price')
@@ -165,7 +165,7 @@ class OrderSerializer(serializers.ModelSerializer):
         # import pdb; pdb.set_trace()
         for order_item_data in order_items_data:
             ordered_meal = OrderMealSerializer().create({**order_item_data, 'order': order})
-            total_amount += ordered_meal.amount
+            total_amount += ordered_meal.amount * ordered_meal.quantity
         order.total_amount = total_amount
         order.save()
         

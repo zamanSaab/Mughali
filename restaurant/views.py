@@ -1,7 +1,8 @@
+from decimal import Decimal
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.views import APIView
-from .models import Category, Order
+from .models import Category, Order, PaymentMethods
 from .serializers import CategorySerializer, OrderSerializer
 
 
@@ -43,6 +44,7 @@ from restaurant.models import Order
 from rest_framework import permissions, status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.http import HttpResponseRedirect
+import json
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateCheckoutSessionView(APIView):
@@ -52,9 +54,25 @@ class CreateCheckoutSessionView(APIView):
     serializer_class = OrderSerializer
 
     def post(self, request, *args, **kwargs):
+        import pdb; pdb.set_trace()
         serializer = OrderSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             order = serializer.save()
+            discount_per = 0
+            apply_discount = False
+            discount_config = RestaurantConfiguration.objects.get(title='DiscountConfig', is_active=True)
+            if discount_config:
+                discount_obj = json.loads(discount_config.value)
+                discount_obj['amount']
+                if order.total_amount >= discount_obj['amount']:
+                    discount_per = discount_obj['discount']
+                    order.discount_amount = (order.total_amount * Decimal(discount_per/100))
+                    apply_discount = True
+
+            if order.payment_method == PaymentMethods.COD:
+                order.save()
+                return Response({'message': 'Order placed successfully'}, status=status.HTTP_200_OK)
+
             items = [{
                 'price_data': {
                     'currency': 'eur',
@@ -67,7 +85,7 @@ class CreateCheckoutSessionView(APIView):
                 'quantity': item.quantity,
             } for item in order.order_items.all()]
             try:
-                checkout_session = stripe.checkout.Session.create(
+                session_data = dict(
                     metadata={
                         "order_id": order.id
                     },
@@ -77,14 +95,18 @@ class CreateCheckoutSessionView(APIView):
                     success_url=settings.SITE_URL + '?success=true&session_id={CHECKOUT_SESSION_ID}',
                     cancel_url=settings.SITE_URL + '?canceled=true',
                 )
+                
+                if apply_discount:
+                    coupon = stripe.Coupon.create(
+                        percent_off=discount_per,
+                        duration="once"
+                    )
+                    session_data["discounts"] = [{"coupon": coupon.id}]
+                
+                checkout_session = stripe.checkout.Session.create(**session_data)
                 order.stripe_session_id = checkout_session.id
                 order.save()
-                # return Response(checkout_session.url)
-
-                response = HttpResponseRedirect(checkout_session.url)
-                response.status_code = 303
-                return response
-                return redirect(303, checkout_session.url)
+                return Response(checkout_session.url)
             except:
                 return Response(
                     {'error': 'Something went wrong when creating stripe checkout session'},
@@ -121,14 +143,18 @@ class UpdateOrderStatusView(APIView):
         except Order.DoesNotExist:
             return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        if order.order_status == OrderStatus.PENDING:
+        session = stripe.checkout.Session.retrieve(order.stripe_session_id)
+
+        # Check payment status
+        payment_status = session['payment_status']
+        if payment_status == 'paid' and order.order_status == OrderStatus.PENDING:
             order.order_status = OrderStatus.PAID
             order.save()
             return Response({
                 'message': f'Your order will be deliver in next {self._get_min_delivery_time()} minutes'
             }, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'Order is in preparation'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Your payment is pending'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 

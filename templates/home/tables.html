@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Orders {% endblock %} 
+{% block title %} Orders {% endblock %}
 
 <!-- Specific Page CSS goes HERE  -->
 
@@ -25,6 +25,13 @@
     .switch-button.inactive {
         background-color: #999;
     }
+    .search-input {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding: 5px;
+        width: 100%;
+        box-sizing: border-box;
+    }
 </style>
 {% endblock stylesheets %}
 
@@ -37,17 +44,16 @@
                         <h4 class="card-title"> Orders </h4>
                         <!-- Switch for Takeaway and Delivery -->
                         <div class="btn-group" role="group" aria-label="Order Type Switch">
-
-            {% comment %} <div class="switch-button inactive" id="takeaway-btn" onclick="filterOrders('takeaway')">Takeaway</div>
-            <div class="switch-button active" id="delivery-btn" onclick="filterOrders('delivery')">Delivery</div> {% endcomment %}
                             <button type="button" class="btn btn-secondary active" id="delivery-btn" onclick="filterOrders('delivery')">Delivery</button>
                             <button type="button" class="btn btn-secondary inactive" id="takeaway-btn" onclick="filterOrders('pick-up')">Takeaway</button>
                         </div>
+                        <!-- Search input field -->
+                        <input type="text" id="search-input" class="search-input" onkeyup="searchOrders()" placeholder="Search for orders..">
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table tablesorter " id="orders-table">
-                                <thead class=" text-primary">
+                            <table class="table tablesorter" id="orders-table">
+                                <thead class="text-primary">
                                 <tr>
                                     <th>
                                         Name
@@ -60,6 +66,9 @@
                                     </th>
                                     <th>
                                         Address
+                                    </th>
+                                    <th>
+                                        Order Type
                                     </th>
                                     <th class="text-center">
                                         Order Time
@@ -77,6 +86,7 @@
                                             <td>{{ order.phone }}</td>
                                             <td>{{ order.get_order_status_display }}</td>
                                             <td>{{ order.address|slice:":25" }}...</td>
+                                            <td>{{ order.get_order_type_display }}</td>
                                             <td class="text-center">
                                                 {{ order.timestamp }}
                                             </td>
@@ -111,7 +121,28 @@
         document.getElementById('delivery-btn').classList.toggle('active', type === 'delivery');
         document.getElementById('delivery-btn').classList.toggle('inactive', type !== 'delivery');
     }
-    
+
+    function searchOrders() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById('search-input');
+        filter = input.value.toLowerCase();
+        table = document.getElementById('orders-table');
+        tr = table.getElementsByTagName('tr');
+        for (i = 1; i < tr.length; i++) { // Skip header row
+            tr[i].style.display = 'none';
+            td = tr[i].getElementsByTagName('td');
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = '';
+                        break; // Stop searching in this row if a match is found
+                    }
+                }
+            }
+        }
+    }
+
     // Optional: Initialize with all orders displayed
     filterOrders('all');
 </script>

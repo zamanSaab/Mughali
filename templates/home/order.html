@@ -30,10 +30,13 @@
     <div class="row">
       <div class="col-md-12">
         <div class="card">
+
+            <a style="text-align: end; padding: 20px;" href="{% url 'receipt_view' order_id %}">view receipt</a>
           <div class="card-body">
             <h2>Food Order</h2>
             <form method="post" >{% comment %}action="{% url 'your_view_name' %}"> {% endcomment %}
               {% csrf_token %}
+
               <div class="row">
                   <div class="col-md-6 pr-md-1">
                       {{ form.user.label_tag }}
@@ -77,7 +80,7 @@
                   </div>
               </div>
               <div class="row">
-                  <div class="col-md-12">
+                  <div class="col-md-6">
                       {{ form.total_amount.label_tag }}
                       <div class="input-group">
                           <div class="input-group-prepend">
@@ -86,6 +89,10 @@
                           {{ form.total_amount }}
                       </div>
                       {% comment %} {{ form.total_amount }} {% endcomment %}
+                  </div>
+                  <div class="col-md-6">
+                      {{ form.payment_method.label_tag }}
+                      {{ form.payment_method }}
                   </div>
               </div>
               <button type="submit" class="btn btn-primary">Update</button>
@@ -140,7 +147,7 @@
               <div class="serving">
                 <strong>Quantity:</strong>
                 {% if item.quantity %}
-                  {{ item.get_quantity_display }}
+                  {{ item.quantity }}
                 {% else %}
                   1
                 {% endif %}

@@ -1,4 +1,5 @@
 from django.db import models
+from stripe.api_resources import payment_method
 # from model_utils.models import TimeStampedModel
 
 # Create your models here.
@@ -30,8 +31,8 @@ class RequiredItem(models.Model):
         return self.description
 
 class MealServing(models.IntegerChoices):
-    REGULAR = 0, 'Regular'
-    LARGE = 1, 'Large'
+    REGULAR = 1, 'Regular'
+    LARGE = 2, 'Large'
 
 
 class MenuItem(models.Model):
@@ -68,6 +69,9 @@ class OrderStatus(models.IntegerChoices):
     DELIVERED = 3, 'Delivered'
     PAID = 4, 'Paid'
 
+class PaymentMethods(models.IntegerChoices):
+    COD = 0, 'Cash on Delivery'
+    ONLINE = 1, 'Online payment'
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -86,7 +90,8 @@ class Order(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     
     stripe_session_id = models.CharField(max_length=512)
-    transaction_code = models.CharField(max_length=128, null=True, default=None)
+    payment_method = models.SmallIntegerField(choices=PaymentMethods.choices, default=PaymentMethods.COD)
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     # order_date_time = models.DateTimeField()
 
     def __str__(self):

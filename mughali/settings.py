@@ -224,13 +224,6 @@ STRIPE_PUBLISHABLE_KEY = 'pk_test_51PKRslIwpwstqGvy2gq8keV21q6zeSpazsv8PauAKSwT4
 STRIPE_ENDPOINT_SECRET = 'whsec_a553b8a8fafb36f1c217c53c9d143610f18f7770e00d756465b072423f74cc1d'
 STRIPE_WEBHOOK_SECRET = 'whsec_a553b8a8fafb36f1c217c53c9d143610f18f7770e00d756465b072423f74cc1d'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'zchaudhary09@gmail.com'
-EMAIL_HOST_PASSWORD = 'wgoufnlvcllehipx'
-
 
 SITE_URL = 'http://localhost:3000/'
 BACKEND_URL = 'http://127.0.0.1:8000/'

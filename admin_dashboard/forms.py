@@ -75,7 +75,7 @@ class OrderForm(forms.ModelForm):
         model = Order
         fields = [
             'user', 'order_type', 'order_status', 'address',
-            'zip_code', 'phone', 'timestamp', 'total_amount'
+            'zip_code', 'phone', 'timestamp', 'total_amount', 'payment_method'
         ]
         widgets = {
             'user': forms.Select(attrs={'class': 'form-control'}),
@@ -90,6 +90,7 @@ class OrderForm(forms.ModelForm):
                 attrs={'class': 'form-control', 'type': 'datetime-local', 'style': 'color: white !important;'}
             ),
             'total_amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'payment_method': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):

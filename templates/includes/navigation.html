@@ -59,7 +59,7 @@
         $(document).ready(function() {
             function checkForNotifications() {
                 $.ajax({
-                    url: '/notifications/get-notifications/',
+                    url: '/admin-dashboard/notifications/get-notifications/',
                     method: 'GET',
                     success: function(data) {
                         let notifications = data;
@@ -96,7 +96,7 @@
 
             function markAsRead(notificationId, redirectUrl) {
                 $.ajax({
-                    url: `/notifications/mark-as-read/${notificationId}/`,
+                    url: `/admin-dashboard/notifications/mark-as-read/${notificationId}/`,
                     method: 'POST',
                     success: function() {
                         window.location.href = redirectUrl;

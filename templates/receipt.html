@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .receipt-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            width: 400px;
+            box-sizing: border-box;
+            margin: 20px auto;
+            page-break-inside: avoid;
+        }
+        .header, .footer {
+            text-align: center;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            page-break-inside: auto;
+        }
+        .items-table th, .items-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        @media print {
+            body {
+                display: block;
+            }
+            .receipt-container {
+                margin: 0;
+                border: 1px solid #000; /* Ensures the border prints */
+                page-break-before: avoid;
+                page-break-after: auto;
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+            }
+            .items-table th, .items-table td {
+                padding: 5px;
+            }
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-container">
+        <div class="header">
+            <h2>Mughali Restaurant</h2>
+            <p>Mughali Restaurant | Athlone</p>
+            <p>Tel: 089-9600867</p>
+        </div>
+        <hr>
+        <p>Placed Date: {{ receipt.date }}</p>
+        <p>Placed Time: {{ receipt.time }}</p>
+        <p>Order Id: {{ receipt.order_id }}</p>
+        {% comment %} <p>NTN: {{ receipt.ntn }}</p> {% endcomment %}
+        <p>Customer Name: {{ receipt.customer_name }}</p>
+        <p>Contact No: {{ receipt.contact_no }}</p>
+        <p>Address: <a href="">{{ receipt.address }}</a></p>
+        {% comment %} <p>Area: {{ receipt.area }}</p> {% endcomment %}
+
+        <h3 style="text-align: center;">{{ receipt.order_type }}</h3>
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Sr.</th>
+                    <th>Item Name</th>
+                    <th>Rate</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in receipt.items %}
+                <tr>
+                    <td>{{ item.sr }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.rate }}</td>
+                    <td>{{ item.qty }}</td>
+                    <td>{{ item.total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p>Payment Method: {{ receipt.payment_method }}</p>
+        <p>Sub Total: {{ receipt.sub_total }}€</p>
+        <p>Discount: {{ receipt.discount }}€</p>
+        <p>Billed Amt: {{ receipt.billed_amt }}€</p>
+
+        <div class="footer">
+            <p>Thank You for visiting Mughali's</p>
+            <p>To Place Your Order or To Give Feedback, Call Us at 089-9600867 or Visit Our Restaurant</p>
+        </div>
+        <footer style="text-align: center;"><a href="http://localhost:3000/">Mughali Restaurant</a></footer>
+    </div>
+
+    <!-- Print Button -->
+    <div style="text-align: center; margin-top: 20px;" class="print-button">
+        <button onclick="window.print()">Print Receipt</button>
+    </div>
+</body>
+</html>
