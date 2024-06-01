@@ -54,7 +54,7 @@ class CreateCheckoutSessionView(APIView):
     serializer_class = OrderSerializer
 
     def post(self, request, *args, **kwargs):
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         serializer = OrderSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             order = serializer.save()
