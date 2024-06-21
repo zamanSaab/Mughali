@@ -95,8 +95,20 @@
                       {{ form.payment_method }}
                   </div>
               </div>
-              <button type="submit" class="btn btn-primary">Update</button>
+              <input type="hidden" name="refund_request_id" value={{refund_request_id}}>
+              
+                <button type="submit" class="btn btn-primary">
+                  {% if refund_request_id %}
+                    Refund Amount
+                  {% else %}
+                    Update
+                  {% endif %}
+                </button>
+              
           </form>
+              {% comment %} {% if refund_request_id %}
+                <button class="btn btn-primary">Refund Amount</button>
+              {% endif %} {% endcomment %}
         </div>
       </div>
   {% comment %} </div> {% endcomment %}
@@ -159,75 +171,24 @@
       </div>
       {% endfor %}
   </div>
-  {% comment %} <div class="row">
-      {% for item in order_items %}
-      <div class="col-md-4">
-        <div class="card card-user">
-          <div class="card-body">
-            <p class="card-text">
-              <div class="author">
-                <div class="block block-one"></div>
-                <div class="block block-two"></div>
-                <div class="block block-three"></div>
-                <div class="block block-four"></div>
-                <a href="javascript:void(0)">
-                  <h4 class="title"> {{ item.menu_item.item.name }}</h4>
-                  <h5 class="title"> {{ item.menu_item.item.description }}</h5>
-                </a> 
-                <p class="description">
-                  {{ item.description }}
-                </p>
-              </div>
-            </p>
-            <div class="card-description">
-              {{ item.details }}
-            </div>
-          </div>
-          <div class="card-footer">
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-  </div> {% endcomment %}
   </div>
-
 
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
-
-
-{% comment %} 
-
-  {% for item in order_items %}
-    <div class="col-md-4">
-      <div class="card card-user">
-        <div class="card-body">
-          <p class="card-text">
-            <div class="author">
-              <div class="block block-one"></div>
-              <div class="block block-two"></div>
-              <div class="block block-three"></div>
-              <div class="block block-four"></div>
-              <a href="javascript:void(0)">
-                <img class="avatar" src="{{ ASSETS_ROOT }}/img/emilyz.jpg" alt="...">
-                <h5 class="title">Mike Andrew</h5>
-              </a>  
-              <p class="description">
-                Ceo/Co-Founder
-              </p>
-            </div>
-          </p>
-          <div class="card-description">
-            Do not be scared of the truth because we need to restart the human foundation in truth And I love you like Kanye loves Kanye I love Rick Owens’ bed design but the back is...
-          </div>
-        </div>
-        <div class="card-footer">
-            </div>
-          </div>
-          </div>
-        </div>
-      </div>
-    </div>
-{% endfor %} {% endcomment %}
+{% block javascripts %}
+<script>
+    console.log({{ messages }});
+</script>
+{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script>
+  // Check if there are messages to display
+  {% if messages %}
+    {% for message in messages %}
+      // Show a toast message for each message
+      toastr.{{ message.tags }}('{{ message }}');
+    {% endfor %}
+  {% endif %}
+</script> {% endcomment %}
+{% endblock javascripts %}

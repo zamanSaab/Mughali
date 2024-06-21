@@ -1,3 +1,6 @@
+from decimal import Decimal
+from django.db.models import Sum
+from restaurant_info.models import RestaurantConfiguration
 from .models import Category, MenuItem, Item, RequiredItem, Order, MealServing
 from rest_framework import serializers
 
@@ -19,7 +22,7 @@ class RequiredItemSerializer(serializers.ModelSerializer):
 class SimpleItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ('name', )
+        fields = ('id', 'name', )
 # class ItemServingSerializer(serializers.Serilalizer):
 #     regular = serializers.DecimalField(max_digits=10, decimal_places=2)
 #     large = serializers.DecimalField(max_digits=10, decimal_places=2)
@@ -77,18 +80,21 @@ from django.db import transaction
 class OrderMealSerializer(serializers.ModelSerializer):
     quantity = serializers.IntegerField(default=1)
     menu_item = serializers.PrimaryKeyRelatedField(queryset=MenuItem.objects.all())
-    # menu_item_name = serializers.CharField(read_only=True, source='menu_item.item.name')
-    # menu_item_image = serializers.CharField(read_only=True, source='menu_item.image')
+    menu_item_name = serializers.CharField(read_only=True, source='menu_item.item.name')
+    menu_item_image = serializers.ImageField(
+        read_only=True, source='menu_item.image')
     # menu_item_description = serializers.CharField(read_only=True, source='menu_item.description')
     # menu_item_name = serializers.CharField(read_only=True, source='menu_item.item.name')
     additional_items = serializers.PrimaryKeyRelatedField(queryset=Item.objects.all(), many=True)
-    required_items = serializers.PrimaryKeyRelatedField(queryset=Item.objects.all(), many=True)
+    required_items = serializers.PrimaryKeyRelatedField(
+        queryset=Item.objects.all(), many=True)
+    # SimpleItemSerializer
     # amount = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderMeal
         fields = (
-            'note', 'serving', 'menu_item', 'additional_items', 'required_items', 'amount', 'quantity'
+            'note', 'serving', 'menu_item', 'additional_items', 'required_items', 'amount', 'quantity', 'menu_item_name', 'menu_item_image'
             # 'menu_item_name', 'menu_item_image', 'amount', 'menu_item_description'
         )
         extra_kwargs = {
@@ -105,7 +111,8 @@ class OrderMealSerializer(serializers.ModelSerializer):
         # import pdb; pdb.set_trace()
         additional_items_data = validated_data.pop('additional_items')
         required_items_data = validated_data.pop('required_items')
-        menu_item_price = validated_data['menu_item'].price * int(validated_data.get('serving', 1))
+        menu_item_price = validated_data['menu_item'].price * \
+            int(validated_data.get('serving', 1))
         # import pdb; pdb.set_trace()
         required_items_prices = sum(
             item.menu_item.price for item in required_items_data if hasattr(item, 'menu_item')
@@ -116,14 +123,19 @@ class OrderMealSerializer(serializers.ModelSerializer):
         order_meal.required_items.set(required_items_data)
         return order_meal
 
+    def to_representation(self, instance):
+        # import pdb; pdb.set_trace()
+        data = super().to_representation(instance)
+        # required_items = data.pop('required_items')
+        data['required_items'] = SimpleItemSerializer(
+            instance.required_items.all(), many=True).data
+        return data
 
 
-from restaurant_info.models import RestaurantConfiguration
-from django.db.models import Sum
-from decimal import Decimal
 
 class OrderSerializer(serializers.ModelSerializer):
-    order_type = serializers.ChoiceField(choices=OrderTypes.choices, required=True)
+    order_type = serializers.ChoiceField(
+        choices=OrderTypes.choices, required=True)
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     # min_delivery_time = serializers.SerializerMethodField()
     order_items = OrderMealSerializer(many=True, required=True)
@@ -131,27 +143,26 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ('payment_intent', )
         extra_kwargs = {
-            'stripe_session_id': {'required': False},
+            'stripe_session_id': {'required': False, },
             'total_amount': {'required': False},
         }
-
 
     def validate_order_items(self, value):
         if value is None or len(value) == 0:
             raise serializers.ValidationError("You cant place an empty order.")
         return value
-    
+
     def get_min_delivery_time(self, instance):
         min_delivery_time = 45
-        delivery_time_in_min =  RestaurantConfiguration.objects.filter(
+        delivery_time_in_min = RestaurantConfiguration.objects.filter(
             title='DeliveryConfig', key='delivery_time_in_min'
         ).first()
         if delivery_time_in_min:
             return delivery_time_in_min.value or min_delivery_time
         return min_delivery_time
-    
 
     # def get_total_amount(self, instance):
     #     # Calculate total amount for the order
@@ -161,10 +172,12 @@ class OrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         order_items_data = validated_data.pop('order_items')
         total_amount = Decimal('0.0')
-        order = Order.objects.create(**validated_data, total_amount=total_amount)
+        order = Order.objects.create(
+            **validated_data, total_amount=total_amount)
         # import pdb; pdb.set_trace()
         for order_item_data in order_items_data:
-            ordered_meal = OrderMealSerializer().create({**order_item_data, 'order': order})
+            ordered_meal = OrderMealSerializer().create(
+                {**order_item_data, 'order': order})
             total_amount += ordered_meal.amount * ordered_meal.quantity
         order.total_amount = total_amount
         order.save()

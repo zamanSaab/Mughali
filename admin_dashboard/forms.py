@@ -1,3 +1,4 @@
+from django.contrib.auth.forms import SetPasswordForm
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -29,7 +30,7 @@ class ReservationForm(forms.ModelForm):
         'name': {'max_length': 100, 'placeholder': 'Enter your name'},
         'no_of_person': {'placeholder': 'Enter No. of person'},
         'note': {'placeholder': 'Enter any note'},
-        'phone': {'type': 'tel', 'placeholder': 'Enter phone number', 'disabled': True}
+        'phone': {'type': 'tel', 'placeholder': 'Enter phone number'}
     }
 
     status = forms.ChoiceField(
@@ -37,18 +38,22 @@ class ReservationForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     date = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Enter Date'})
+        widget=forms.DateInput(
+            attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Enter Date'})
     )
     start_time = forms.TimeField(
-        widget=forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': 'Enter start time'})
+        widget=forms.TimeInput(
+            attrs={'type': 'time', 'class': 'form-control', 'placeholder': 'Enter start time'})
     )
     end_time = forms.TimeField(
-        widget=forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': 'Enter end time'})
+        widget=forms.TimeInput(
+            attrs={'type': 'time', 'class': 'form-control', 'placeholder': 'Enter end time'})
     )
 
     class Meta:
         model = Reservation
-        fields = ['no_of_person', 'date', 'start_time', 'end_time', 'note', 'name', 'status', 'phone']
+        fields = ['no_of_person', 'date', 'start_time',
+                  'end_time', 'note', 'name', 'status', 'phone']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,6 +76,7 @@ class OrderForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'}),
     )
+
     class Meta:
         model = Order
         fields = [
@@ -87,7 +93,8 @@ class OrderForm(forms.ModelForm):
             'zip_code': forms.TextInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'timestamp': forms.DateTimeInput(
-                attrs={'class': 'form-control', 'type': 'datetime-local', 'style': 'color: white !important;'}
+                attrs={'class': 'form-control', 'type': 'datetime-local',
+                       'style': 'color: white !important;'}
             ),
             'total_amount': forms.NumberInput(attrs={'class': 'form-control'}),
             'payment_method': forms.Select(attrs={'class': 'form-control'}),
@@ -98,7 +105,8 @@ class OrderForm(forms.ModelForm):
         if self.instance and self.instance.user:
             self.fields['name'].initial = f"{self.instance.user.first_name} {self.instance.user.last_name}"
         # Initialize the timestamp field with a formatted date if not already set
-        self.fields['timestamp'].initial = self.instance.timestamp.strftime('%Y-%m-%dT%H:%M')
+        self.fields['timestamp'].initial = self.instance.timestamp.strftime(
+            '%Y-%m-%dT%H:%M')
 
         # Set all fields except order_status to read-only or disabled
         for field in self.fields:
@@ -107,3 +115,17 @@ class OrderForm(forms.ModelForm):
                 self.fields[field].widget.attrs['readonly'] = True
                 self.fields[field].widget.attrs['disabled'] = True
                 self.fields[field].widget.attrs['style'] = 'color: white;'
+
+
+class CustomSetPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['new_password1'].widget.attrs.update(
+            {'class': 'form-control col-md-12 px-md-1'})
+        self.fields['new_password2'].widget.attrs.update(
+            {'class': 'form-control col-md-12 px-md-1'})
+
+        # # Assigning form-control class to error messages
+        # for field_name, field in self.fields.items():
+        #     if field.errors:
+        #         field.widget.attrs['class'] += ' alert alert-danger mt-2'

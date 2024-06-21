@@ -22,8 +22,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class RestaurantConfigurationDetailView(APIView):
-    permission_classes = (permissions.IsAuthenticated, )
-    authentication_classes = (JWTAuthentication, )
+    # permission_classes = (permissions.IsAuthenticated, )
+    # authentication_classes = (JWTAuthentication, )
     def get(self, request, title):
         try:
             config = RestaurantConfiguration.objects.get(title=title, is_active=True)
@@ -55,4 +55,9 @@ class RegisterView(APIView):
                 'access': str(refresh.access_token),
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+# views.py
 

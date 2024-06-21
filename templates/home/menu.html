@@ -1,0 +1,325 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Menu {% endblock %} 
+
+{% block stylesheets %}
+<style>
+    /* Add styles for the cart sidebar */
+    .cart-sidebar {
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 300px;
+        height: 100%;
+        background: #191927;
+        padding: 20px;
+        box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+        overflow-y: auto;
+    }
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .cart-item div{
+        display: flex;
+        margin-bottom: 10px;
+    }
+    .cart-item h4, .cart-item span {
+        margin: 0;
+    }
+    .cart-total {
+        margin-top: 20px;
+    }
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        border: solid 1px;
+        border-radius: 7px;
+    }
+    .quantity-controls button {
+        background-color: #db4ed0;
+        border-radius: 5px;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        color: white;
+    }
+
+    /* Add horizontal scrolling to the category menu */
+    .nav-link-wrap {
+        overflow-x: auto;
+        white-space: nowrap;
+        -ms-overflow-style: none;  /* Internet Explorer 10+ */
+        scrollbar-width: none;  /* Firefox */
+    }
+    .nav-link-wrap::-webkit-scrollbar {
+        display: none;  /* Safari and Chrome */
+    }
+    .nav-link-wrap .nav {
+        display: inline-flex;
+        flex-wrap: nowrap;
+    }
+    .nav-link-wrap .nav .nav-link {
+        flex: 0 0 auto;
+        margin-right: 5px;
+    }
+</style>
+
+{% endblock stylesheets %}
+
+
+{% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="row">
+        <div class="col-md-12 nav-link-wrap">
+          <div class="nav nav-pills d-flex text-center" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <a class="nav-link ftco-animate active" id="v-pills-all-tab" data-toggle="pill" href="#v-pills-all" role="tab" aria-controls="v-pills-all" aria-selected="true">ALL</a>
+            {% for category in categories %}
+              <a class="nav-link ftco-animate" id="v-pills-{{ category.id }}-tab" data-toggle="pill" href="#v-pills-{{ category.id }}" role="tab" aria-controls="v-pills-{{ category.id }}" aria-selected="false">{{ category.name }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="v-pills-tabContent" style="padding-top: 25px">
+        <div class="tab-pane fade show active" id="v-pills-all" role="tabpanel" aria-labelledby="v-pills-all-tab">
+          <div class="row">
+            <div class="col-md-12" style="padding-bottom: 10px">
+              <!-- Search bar for filtering menu items -->
+              <input type="text" id="menu-search" class="form-control" placeholder="Search menu items...">
+            </div>
+          </div>
+          <div class="row no-gutters d-flex align-items-stretch" id="menu-items-all">
+            {% for menu_item in menu_items %}
+              <div class="col-md-12 col-lg-6 d-flex align-self-stretch menu-item" style="border: solid #d450d8 1px; border-radius: 25px; padding: 5px; margin-top: 5px;">
+                <div class="menus d-sm-flex ftco-animate align-items-stretch">
+                  <div class="menu-img img" style="padding-right: 12px; padding-left: 5px">
+                    {% if menu_item.image %}
+                      <img src="{{ Backend_URL }}media/{{ menu_item.image }}" alt="menu image" style="display: block; margin-left: auto; margin-right: auto; width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                      <img src="/static/img/mughali-round.png" alt="menu image" style="display: block; margin-left: auto; margin-right: auto; width: 100px; height: 100px;">
+                    {% endif %}
+                  </div>
+                  <div class="text d-flex align-items-center">
+                    <div>
+                      <div class="d-flex">
+                        <div class="one-half" style="width: calc(100% - 80px);">
+                          <h3 style="font-size: 15px; font-weight: 600;">{{ menu_item.item.name }}</h3>
+                        </div>
+                        <div style="width: 80px; text-align: right;">
+                          <span style="font-size: 20px; color: #c8a97e; font-weight: 600; line-height: 1.3; transition: all 0.3s ease;"> €{{ menu_item.price }}</span>
+                        </div>
+                      </div>
+                      <p><a href="#" class="btn btn-primary add-to-cart" data-id="{{ menu_item.id }}" data-name="{{ menu_item.item.name }}" data-price="{{ menu_item.price }}">Add to cart</a></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        {% for category in categories %}
+          <div class="tab-pane fade" id="v-pills-{{ category.id }}" role="tabpanel" aria-labelledby="v-pills-{{ category.id }}-tab">
+            <div class="row no-gutters d-flex align-items-stretch" id="menu-items-{{ category.id }}">
+              {% for menu_item in menu_items %}
+                {% if menu_item.category == category %}
+                  <div class="col-md-12 col-lg-6 d-flex align-self-stretch menu-item" style="border: solid #d450d8 1px; border-radius: 25px; padding: 5px;">
+                    <div class="menus d-sm-flex ftco-animate align-items-stretch">
+                      <div class="menu-img img" style="padding-right: 12px; padding-left: 5px">
+                        {% if menu_item.image %}
+                          <img src="{{ Backend_URL }}media/{{ menu_item.image }}" alt="menu image" style="display: block; margin-left: auto; margin-right: auto; width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+                        {% else %}
+                          <img src="/static/img/mughali-round.png" alt="menu image" style="display: block; margin-left: auto; margin-right: auto; width: 100px; height: 100px;">
+                        {% endif %}
+                      </div>
+                      <div class="text d-flex align-items-center">
+                        <div>
+                          <div class="d-flex">
+                            <div class="one-half" style="width: calc(100% - 80px);">
+                              <h3 style="font-size: 15px; font-weight: 600;">{{ menu_item.item.name }}</h3>
+                            </div>
+                            <div style="width: 80px; text-align: right;">
+                              <span style="font-size: 20px; color: #c8a97e; font-weight: 600; line-height: 1.3; transition: all 0.3s ease;"> €{{ menu_item.price }}</span>
+                            </div>
+                          </div>
+                          <p><a href="#" class="btn btn-primary add-to-cart" data-id="{{ menu_item.id }}" data-name="{{ menu_item.item.name }}" data-price="{{ menu_item.price }}">Add to cart</a></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="col-md-4 cart-sidebar">
+      <h3>Your order</h3>
+      <div id="cart-items"></div>
+      <div class="cart-total">
+        <p>Total Price: €<span id="total-price">0.00</span></p>
+        <p>Total after Discount: €<span id="total-after-discount">0.00</span></p>
+
+        <!-- Add the input field for the name -->
+        <input type="text" id="customer-name" placeholder="Enter Customer Name" class="form-control">
+        <!-- Disable the checkout button initially -->
+        <button class="btn btn-primary" id="checkout-button" disabled>Checkout</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+<script>
+$(document).ready(function(){
+    var cart = [];
+    
+    // Function to update the menu items based on search input
+    // Function to update the menu items based on search input
+  function filterMenuItems(query) {
+    var menuItems = $('.menu-item');
+    menuItems.each(function() {
+        var menuItemName = $(this).find('h3').text().toLowerCase(); // Find the menu item name
+        
+        // Check if the menu item name includes the search query
+        if (menuItemName.includes(query.toLowerCase())) {
+            $(this).css('border', 'solid #d450d8 1px');
+            $(this).find('*').show()
+            //$(this).css('background-color', '#f0f0f0'); // Change background color to light gray
+        } else {
+            $(this).css('border', 'none');
+            $(this).hide();
+            $(this).find('*').hide();
+            //$(this).css('border', 'none'); // Reset background color to transparent
+        }
+    });
+}
+
+
+    // Handle search input change
+    $('#menu-search').on('input', function() {
+        var searchQuery = $(this).val().trim();
+        filterMenuItems(searchQuery);
+    });
+
+    // Add to cart functionality
+    $('.add-to-cart').click(function(e){
+        e.preventDefault();
+        var menuItemId = $(this).data('id');
+        var menuItemName = $(this).data('name');
+        var menuItemPrice = $(this).data('price');
+        
+        var item = cart.find(item => item.id === menuItemId);
+        if (item) {
+            item.quantity += 1;
+        } else {
+            cart.push({id: menuItemId, name: menuItemName, price: parseFloat(menuItemPrice).toFixed(0), quantity: 1});
+        }
+        updateCart();
+    });
+
+    // Handle customer name input for checkout button enable/disable
+    $('#customer-name').on('input', function() {
+        var name = $(this).val();
+        if (name.trim() === '') {
+            $('#checkout-button').prop('disabled', true);
+        } else {
+            $('#checkout-button').prop('disabled', false);
+        }
+    });
+
+    // Function to update the cart display
+    function updateCart() {
+        var cartItemsContainer = $('#cart-items');
+        cartItemsContainer.empty();
+        var totalPrice = 0;
+        
+        cart.forEach(item => {
+            var itemTotal = parseFloat(item.price).toFixed(0) * item.quantity;
+            totalPrice += itemTotal;
+            cartItemsContainer.append(
+                `<h4 style="margin-right: 10px">${item.name}</h4>
+                    <div class="cart-item">
+                        <div class="quantity-controls">
+                            <button class="decrease-quantity" data-id="${item.id}">-</button>
+                            <span style="padding: 6px;">${item.quantity}</span>
+                            <button class="increase-quantity" data-id="${item.id}">+</button>
+                        </div>
+                        <span>€${itemTotal.toFixed(2)}</span>
+                    </div>
+                <hr style="border-top: 1px dotted #db4ed0">`
+            );
+        });
+        
+        var discount = totalPrice * 0; //0.15;
+        var totalAfterDiscount = totalPrice - discount;
+        
+        $('#total-price').text(totalPrice.toFixed(2));
+        $('#discount').text(discount.toFixed(2));
+        $('#total-after-discount').text(totalAfterDiscount.toFixed(2));
+
+        // Add event listeners for the new buttons
+        $('.increase-quantity').click(function() {
+            var menuItemId = $(this).data('id');
+            var item = cart.find(item => item.id === menuItemId);
+            if (item) {
+                item.quantity += 1;
+                updateCart();
+            }
+        });
+
+        $('.decrease-quantity').click(function() {
+            var menuItemId = $(this).data('id');
+            var item = cart.find(item => item.id === menuItemId);
+            if (item) {
+                item.quantity -= 1;
+                if (item.quantity === 0) {
+                    cart = cart.filter(item => item.id !== menuItemId);
+                }
+                updateCart();
+            }
+        });
+    }
+
+    // Handle checkout button click
+    $('#checkout-button').click(function(e) {
+        e.preventDefault();
+        var customerName = $('#customer-name').val().trim();
+        if (customerName === '') {
+            alert('Please enter your name before checking out.');
+            return;
+        }
+        $.ajax({
+            url: "{% url 'create_order' %}",
+            type: "POST",
+            data: JSON.stringify({cart: cart, customer_name: customerName}),
+            contentType: "application/json",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            success: function(response) {
+                cart = [];
+                updateCart();
+                $('#customer-name').val('');
+                var printWindow = window.open('', '_blank');
+                printWindow.document.write(response);
+            },
+            error: function(response) {
+                alert("There is an error placing your order.");
+            }
+        });
+    });
+});
+</script>
+{% endblock javascripts %}

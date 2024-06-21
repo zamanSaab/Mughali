@@ -60,6 +60,7 @@ class MenuItem(models.Model):
 class OrderTypes(models.IntegerChoices):
     PICK_UP = 0, 'Pick-Up'
     DELIVERY = 1, 'Delivery'
+    IN_HOUSE = 2, 'Dine-In'
 
 
 class OrderStatus(models.IntegerChoices):
@@ -68,6 +69,8 @@ class OrderStatus(models.IntegerChoices):
     OUT_FOR_DELIVERY = 2, 'Out for delivery'
     DELIVERED = 3, 'Delivered'
     PAID = 4, 'Paid'
+    REIMBURSED = 5, 'Reimbursed'
+
 
 class PaymentMethods(models.IntegerChoices):
     COD = 0, 'Cash on Delivery'
@@ -88,25 +91,45 @@ class Order(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     # delivery_time = models.DateTimeField(default=timezone.now)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    
+
     stripe_session_id = models.CharField(max_length=512)
-    payment_method = models.SmallIntegerField(choices=PaymentMethods.choices, default=PaymentMethods.COD)
-    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    payment_method = models.SmallIntegerField(
+        choices=PaymentMethods.choices, default=PaymentMethods.COD)
+    discount_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0.0
+    )
+    payment_intent = models.CharField(max_length=512, null=True, blank=True)
+    # is_refund_requested = models.BooleanField(default=False)
     # order_date_time = models.DateTimeField()
 
     def __str__(self):
         return f"{OrderStatus.choices[self.order_status][1]} - {self.user.username}-{self.total_amount}€"
 
+
+class OrderReimbursement(models.Model):
+    order = models.OneToOneField(
+        Order, on_delete=models.CASCADE, related_name='reimbursement'
+    )
+    is_refund_requested = models.BooleanField(default=False)
+    is_reimbursed = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
+    reason_for_reimbursed = models.TextField()
+
+
 class OrderMeal(models.Model):
     note = models.TextField(null=True, blank=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
     serving = models.SmallIntegerField(null=True, blank=True, choices=MealServing.choices)
-    menu_item = models.ForeignKey(MenuItem, on_delete=models.DO_NOTHING, blank=False)
+    menu_item = models.ForeignKey(
+        MenuItem, on_delete=models.CASCADE, blank=False
+    )
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     quantity = models.PositiveSmallIntegerField(default=1)
 
-    required_items = models.ManyToManyField(Item, blank=True, related_name='required_in')
-    additional_items = models.ManyToManyField(Item, blank=True, related_name='optional_in')
+    required_items = models.ManyToManyField(
+        Item, blank=True, related_name='required_in')
+    additional_items = models.ManyToManyField(
+        Item, blank=True, related_name='optional_in')
     
     def __str__(self):
         return self.menu_item.item.name

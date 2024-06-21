@@ -1,12 +1,13 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Item, Category, RequiredItem, MenuItem, Order, OrderMeal
+from .models import Item, Category, RequiredItem, MenuItem, Order, OrderMeal, OrderReimbursement
 
 admin.site.register(Item)
 admin.site.register(MenuItem)
 admin.site.register(Category)
 admin.site.register(RequiredItem)
+admin.site.register(OrderReimbursement)
 # admin.site.register(Order)
 # admin.site.register(OrderMeal)
 class OrderMealInline(admin.TabularInline):

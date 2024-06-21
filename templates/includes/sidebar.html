@@ -32,6 +32,19 @@
                         <p>Bookings</p>
                     </a>
                 </li>
+                </li>
+                <li class="{% if 'index' in segment %} active {% endif %} ">
+                    <a href="/admin-dashboard/refunds">
+                        <i class="tim-icons icon-bank"></i>
+                        <p>Refund Requests</p>
+                    </a>
+                </li>
+                <li class="{% if 'index' in segment %} active {% endif %} ">
+                    <a href="/admin-dashboard/menu">
+                        <i class="tim-icons icon-basket-simple"></i>
+                        <p>Menu</p>
+                    </a>
+                </li>
                 {% comment %} <li class="{% if 'notifications' in segment %} active {% endif %}">
                     <a href="/notifications.html">
                         <i class="tim-icons icon-bell-55"></i>

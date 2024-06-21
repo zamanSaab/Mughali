@@ -1,0 +1,99 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Refund Requests {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+    .search-input {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding: 5px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Pending Refund Requests</h4>
+                        <!-- Search input field -->
+                        <input type="text" id="search-input" class="search-input" onkeyup="searchReservations()" placeholder="Search with name..">
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table tablesorter" id="reservations-table">
+                                <thead class="text-primary">
+                                <tr>
+                                    <th>
+                                        Order ID
+                                    </th>
+                                    <th>
+                                        Name
+                                    </th>
+                                    <th>
+                                        Phone Number
+                                    </th>
+                                    <th class="text-center">
+                                        Reason of Refund
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for refund_request in refund_requests %}
+                                        <tr class="reservation-row">
+                                            <td>
+                                               <a href="{% url 'order_detail' refund_request.order_id %}?refund_request_id={{ refund_request.id }}">
+                                                    {{ refund_request.order_id }}
+                                                </a>
+                                            </td>
+                                            <td>{{ refund_request.order.user.first_name }} {{ refund_request.order.user.last_name }}</td>
+                                            <td>{{ refund_request.order.phone }}</td>
+                                            <td class="text-center">
+                                                {{ refund_request.reason_for_reimbursed }}
+                                            </td> 
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+    function searchReservations() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById('search-input');
+        filter = input.value.toLowerCase();
+        table = document.getElementById('reservations-table');
+        tr = table.getElementsByTagName('tr');
+        
+        for (i = 1; i < tr.length; i++) { // Skip header row
+            tr[i].style.display = 'none';
+            td = tr[i].getElementsByTagName('td');
+            if (td) {
+                let name = td[1].textContent || td[1].innerText; // Name column
+                if (name.toLowerCase().indexOf(filter) > -1) {
+                    tr[i].style.display = '';
+                }
+            }
+        }
+    }
+</script>
+
+
+
+
+
+{% endblock javascripts %}

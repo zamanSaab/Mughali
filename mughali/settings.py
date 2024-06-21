@@ -46,7 +46,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'payments',
     'admin_dashboard',
-    'rest_framework.authtoken'
+    'django_rest_passwordreset',
+    'rest_framework.authtoken',
+    # 'djstripe'
 ]
 
 MIDDLEWARE = [
@@ -157,6 +159,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -224,6 +227,12 @@ STRIPE_PUBLISHABLE_KEY = 'pk_test_51PKRslIwpwstqGvy2gq8keV21q6zeSpazsv8PauAKSwT4
 STRIPE_ENDPOINT_SECRET = 'whsec_a553b8a8fafb36f1c217c53c9d143610f18f7770e00d756465b072423f74cc1d'
 STRIPE_WEBHOOK_SECRET = 'whsec_a553b8a8fafb36f1c217c53c9d143610f18f7770e00d756465b072423f74cc1d'
 
+
+STRIPE_LIVE_SECRET_KEY = 'pk_test_51PKRslIwpwstqGvy2gq8keV21q6zeSpazsv8PauAKSwT4CodQjR0EAXNm6J72qrYaQIDcFNJLReAHcdi5cKueKEA00LgEC6wiz'
+STRIPE_TEST_SECRET_KEY = 'sk_test_51PKRslIwpwstqGvyu0q9HnPkLF1GGgfHOidetyuEGps7qSQqEnUgPqyJfUWq3MUvOFeSTHQV0hbSHjLLTsbCLxbP00RtUEq3rU'
+STRIPE_LIVE_MODE = False  # Change to True in production
+DJSTRIPE_WEBHOOK_SECRET = 'whsec_a553b8a8fafb36f1c217c53c9d143610f18f7770e00d756465b072423f74cc1d'
+DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
